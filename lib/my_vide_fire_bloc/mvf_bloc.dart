@@ -6,6 +6,7 @@ import 'package:http/http.dart' as http;
 import 'package:file_picker/file_picker.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/foundation.dart' show kIsWeb;
 
 import 'video_fire_model.dart';
 
@@ -50,10 +51,18 @@ class MVFBloc {
   Future<VFModel?> _uploadToFirebase(PlatformFile file) async {
     try {
       int uploadTime = DateTime.now().millisecondsSinceEpoch;
-      await storageRef
-          .child(file.name)
-          .putFile(File(file.path!))
-          .then((p0) async {
+      // This line changed
+      final fileBytes = file.bytes;
+      var X;
+
+      if (kIsWeb) {
+        // running on the web!
+        X = await storageRef.child(file.name).putData(fileBytes!);
+      } else {
+        // NOT running on the web! You can check for additional platforms here.
+        X = await storageRef.child(file.name).putFile(File(file.path!));
+      }
+      X.then((p0) async {
         if (p0.state == TaskState.success) {
           String url = await storageRef.child(file.name).getDownloadURL();
           VFModel vfModel =
@@ -83,26 +92,23 @@ class MVFBloc {
   }
 
   void getExistingData() async {
-
-
     try {
       final urlrtdb = Uri.https(
         'videoplayerfirebase-bbd42-default-rtdb.firebaseio.com',
         '/Videos.json',
       );
       final response = await http.get(urlrtdb);
-      Map<String,dynamic> data = jsonDecode(response.body);
-      data.forEach((key,_data) {
+      Map<String, dynamic> data = jsonDecode(response.body);
+      data.forEach((key, _data) {
         try {
-          VFModel vfModel = VFModel.fromMap(_data as Map<String,dynamic>);
+          VFModel vfModel = VFModel.fromMap(_data as Map<String, dynamic>);
           updateVideos(vfModel);
-        } catch(e) {
+        } catch (e) {
           log("ERROR!!! UNABLE TO PARSE VIDEO - $e");
         }
       });
-    } catch(e) {
+    } catch (e) {
       log("ERROR!!!!! WHILE FETCHING --  $e");
     }
-
   }
 }

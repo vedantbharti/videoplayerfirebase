@@ -1,15 +1,31 @@
+import 'dart:io';
+
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 
 import 'package:videoplayerfirebase/ui/index.dart';
 import 'package:video_player/video_player.dart';
+import 'package:flutter/foundation.dart' show kIsWeb;
 
 import 'my_vide_fire_bloc/index.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  await Firebase.initializeApp();
+  if (kIsWeb) {
+    // running on the web!
+    await Firebase.initializeApp(
+        options: const FirebaseOptions(
+            apiKey: "AIzaSyCKoKiuDCqhArixozmMZc2Y2i_nyLYxCOs",
+            appId: "1:202009261421:web:bc9256974fd591354c9664",
+            messagingSenderId: "202009261421",
+            storageBucket: "videoplayerfirebase-bbd42.appspot.com",
+            projectId: "videoplayerfirebase-bbd42"));
+  } else {
+    // NOT running on the web! You can check for additional platforms here.
+    await Firebase.initializeApp();
+  }
+
   runApp(const MyApp());
 }
 
