@@ -83,7 +83,7 @@ class _MyHomePageState extends State<MyHomePage> {
   List<Widget> _generateChildren(BuildContext context, List<VFModel> videos) {
     List<Widget> items = [];
 
-    double tileDim = 150;
+    double tileDim = 250;
     for (int i = 0; i < videos.length; i++) {
       items.add(
         _generateItem(tileDim, videos[i]),

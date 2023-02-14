@@ -70,6 +70,9 @@ class VideoFireItem extends StatelessWidget {
                       Text(
                         video.name,
                         style: UIUtils.cardStyle(),
+                        overflow: TextOverflow.ellipsis,
+                        softWrap: true,
+                        maxLines: 2,
                       ),
                     ],
                   ),

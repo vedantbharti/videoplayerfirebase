@@ -64,22 +64,17 @@ class MVFBloc {
             'videoplayerfirebase-bbd42-default-rtdb.firebaseio.com',
             '/Videos.json',
           );
-          try {
-            await http.post(
-              urlrtdb,
-              body: json.encode(
-                {
-                  'name': vfModel.name,
-                  'uploadTime': vfModel.uploadTime,
-                  'url': vfModel.url,
-                },
-              ),
-            );
-          } catch (error) {
-            throw error;
-          }
-
-          log(vfModel.toString());
+          await http.post(
+            urlrtdb,
+            body: json.encode(
+              {
+                'name': vfModel.name,
+                'uploadTime': vfModel.uploadTime,
+                'url': vfModel.url,
+              },
+            ),
+          );
+          updateVideos(vfModel);
         }
       });
     } catch (e) {
@@ -88,13 +83,26 @@ class MVFBloc {
   }
 
   void getExistingData() async {
-    // TODO: get all video models
-    final urlrtdb = Uri.https(
-      'videoplayerfirebase-bbd42-default-rtdb.firebaseio.com',
-      '/Videos.json',
-    );
 
-    final response = await http.get(urlrtdb);
-    String json;
+
+    try {
+      final urlrtdb = Uri.https(
+        'videoplayerfirebase-bbd42-default-rtdb.firebaseio.com',
+        '/Videos.json',
+      );
+      final response = await http.get(urlrtdb);
+      Map<String,dynamic> data = jsonDecode(response.body);
+      data.forEach((key,_data) {
+        try {
+          VFModel vfModel = VFModel.fromMap(_data as Map<String,dynamic>);
+          updateVideos(vfModel);
+        } catch(e) {
+          log("ERROR!!! UNABLE TO PARSE VIDEO - $e");
+        }
+      });
+    } catch(e) {
+      log("ERROR!!!!! WHILE FETCHING --  $e");
+    }
+
   }
 }
