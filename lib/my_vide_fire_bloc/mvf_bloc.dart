@@ -48,10 +48,11 @@ class MVFBloc {
   Future<VFModel?> _uploadToFirebase(PlatformFile file) async {
     try {
       int uploadTime = DateTime.now().millisecondsSinceEpoch;
-      await storageRef.child(file.path!).putFile(File(file.path!)).then((p0) async {
+      await storageRef.child(file.name).putFile(File(file.path!)).then((p0) async {
         if (p0.state == TaskState.success) {
-          String url = await storageRef.child(file.path!).getDownloadURL();
+          String url = await storageRef.child(file.name).getDownloadURL();
           VFModel vfModel = VFModel(name: file.name, uploadTime: uploadTime, url: url);
+          // TODO : upload this model to real time data.
           log(vfModel.toString());
         }
       });
@@ -59,5 +60,10 @@ class MVFBloc {
     } catch (e) {
       print(e);
     }
+  }
+
+  void getExistingData() {
+    // TODO: get all video models
+    String json;
   }
 }
