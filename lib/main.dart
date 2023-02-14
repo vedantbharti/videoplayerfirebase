@@ -70,12 +70,7 @@ class _MyHomePageState extends State<MyHomePage> {
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
-          mvfBloc.updateVideos(
-            VFModel(
-                name: "my video",
-                uploadTime: DateTime.now().millisecondsSinceEpoch,
-                url: "https://www.fluttercampus.com/video.mp4"),
-          );
+          mvfBloc.pickFile();
         },
         backgroundColor: Colors.blue,
         child: const Icon(
@@ -88,7 +83,7 @@ class _MyHomePageState extends State<MyHomePage> {
   List<Widget> _generateChildren(BuildContext context, List<VFModel> videos) {
     List<Widget> items = [];
 
-    double tileDim = 200;
+    double tileDim = 150;
     for (int i = 0; i < videos.length; i++) {
       items.add(
         _generateItem(tileDim, videos[i]),

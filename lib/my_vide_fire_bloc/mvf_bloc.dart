@@ -26,6 +26,10 @@ class MVFBloc {
 
       bool isUploadSuccessful = await _uploadToFirebase(file);
 
+      if (!isUploadSuccessful) {
+        return;
+      }
+
       VFModel newVideo = VFModel(
         name: file.name,
         uploadTime: DateTime.now().millisecondsSinceEpoch,
@@ -41,6 +45,9 @@ class MVFBloc {
   }
 
   Future<bool> _uploadToFirebase(PlatformFile file) async {
+
+
+
     return false;
   }
 }
