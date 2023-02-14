@@ -1,3 +1,5 @@
+import 'package:videoplayerfirebase/ui/index.dart';
+
 class VFModel {
   final String name;
   final String url;
@@ -15,5 +17,10 @@ class VFModel {
       uploadTime: json["uploadTime"],
       url: json["url"],
     );
+  }
+
+  @override
+  String toString() {
+    return "${name} :: ${uploadTime} :: ${url}";
   }
 }

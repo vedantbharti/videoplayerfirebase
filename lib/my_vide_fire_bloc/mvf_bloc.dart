@@ -1,3 +1,4 @@
+import 'dart:developer';
 import 'dart:io';
 
 import 'package:file_picker/file_picker.dart';
@@ -47,13 +48,13 @@ class MVFBloc {
   Future<VFModel?> _uploadToFirebase(PlatformFile file) async {
     try {
       int uploadTime = DateTime.now().millisecondsSinceEpoch;
-      await storageRef.putFile(File(file.path!), SettableMetadata(
-        contentType: "image/jpeg",
-        customMetadata: {
-          "uploadTime" : uploadTime.toString(),
-          "name" : file.name,
+      await storageRef.child(file.path!).putFile(File(file.path!)).then((p0) async {
+        if (p0.state == TaskState.success) {
+          String url = await storageRef.child(file.path!).getDownloadURL();
+          VFModel vfModel = VFModel(name: file.name, uploadTime: uploadTime, url: url);
+          log(vfModel.toString());
         }
-      ),);
+      });
 
     } catch (e) {
       print(e);
