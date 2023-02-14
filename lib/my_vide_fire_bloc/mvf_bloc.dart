@@ -1,5 +1,7 @@
 import 'dart:developer';
 import 'dart:io';
+import 'dart:convert';
+import 'package:http/http.dart' as http;
 
 import 'package:file_picker/file_picker.dart';
 import 'package:firebase_storage/firebase_storage.dart';
@@ -20,12 +22,13 @@ class MVFBloc {
 
   void pickFile() async {
     try {
-
       FilePickerResult? filePickerResult = (await FilePicker.platform.pickFiles(
         type: FileType.video,
         allowMultiple: false,
-        onFileLoading: (FilePickerStatus status) => print(status),));
-      if (filePickerResult == null && filePickerResult!.files.isNotEmpty) return;
+        onFileLoading: (FilePickerStatus status) => print(status),
+      ));
+      if (filePickerResult == null && filePickerResult!.files.isNotEmpty)
+        return;
 
       PlatformFile file = filePickerResult.files.first;
 
@@ -39,8 +42,7 @@ class MVFBloc {
       //
       // updateVideos(newVideo);
 
-
-    }  catch (e) {
+    } catch (e) {
       print(e);
     }
   }
@@ -48,22 +50,51 @@ class MVFBloc {
   Future<VFModel?> _uploadToFirebase(PlatformFile file) async {
     try {
       int uploadTime = DateTime.now().millisecondsSinceEpoch;
-      await storageRef.child(file.name).putFile(File(file.path!)).then((p0) async {
+      await storageRef
+          .child(file.name)
+          .putFile(File(file.path!))
+          .then((p0) async {
         if (p0.state == TaskState.success) {
           String url = await storageRef.child(file.name).getDownloadURL();
-          VFModel vfModel = VFModel(name: file.name, uploadTime: uploadTime, url: url);
+          VFModel vfModel =
+              VFModel(name: file.name, uploadTime: uploadTime, url: url);
           // TODO : upload this model to real time data.
+
+          final urlrtdb = Uri.https(
+            'videoplayerfirebase-bbd42-default-rtdb.firebaseio.com',
+            '/Videos.json',
+          );
+          try {
+            await http.post(
+              urlrtdb,
+              body: json.encode(
+                {
+                  'name': vfModel.name,
+                  'uploadTime': vfModel.uploadTime,
+                  'url': vfModel.url,
+                },
+              ),
+            );
+          } catch (error) {
+            throw error;
+          }
+
           log(vfModel.toString());
         }
       });
-
     } catch (e) {
       print(e);
     }
   }
 
-  void getExistingData() {
+  void getExistingData() async {
     // TODO: get all video models
+    final urlrtdb = Uri.https(
+      'videoplayerfirebase-bbd42-default-rtdb.firebaseio.com',
+      '/Videos.json',
+    );
+
+    final response = await http.get(urlrtdb);
     String json;
   }
 }
