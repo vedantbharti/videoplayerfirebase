@@ -1,10 +1,14 @@
+import 'dart:io';
+
 import 'package:file_picker/file_picker.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/cupertino.dart';
 
 import 'video_fire_model.dart';
 
 class MVFBloc {
   ValueNotifier<List<VFModel>> videoNotifier = ValueNotifier([]);
+  final Reference storageRef = FirebaseStorage.instance.ref();
 
   updateVideos(VFModel vfModel) {
     List<VFModel> _vids = [];
@@ -24,19 +28,15 @@ class MVFBloc {
 
       PlatformFile file = filePickerResult.files.first;
 
-      bool isUploadSuccessful = await _uploadToFirebase(file);
+      VFModel? video = await _uploadToFirebase(file);
 
-      if (!isUploadSuccessful) {
+      if (video == null) {
         return;
       }
 
-      VFModel newVideo = VFModel(
-        name: file.name,
-        uploadTime: DateTime.now().millisecondsSinceEpoch,
-        url: file.path!,
-      );
-
-      updateVideos(newVideo);
+      //
+      //
+      // updateVideos(newVideo);
 
 
     }  catch (e) {
@@ -44,10 +44,19 @@ class MVFBloc {
     }
   }
 
-  Future<bool> _uploadToFirebase(PlatformFile file) async {
+  Future<VFModel?> _uploadToFirebase(PlatformFile file) async {
+    try {
+      int uploadTime = DateTime.now().millisecondsSinceEpoch;
+      await storageRef.putFile(File(file.path!), SettableMetadata(
+        contentType: "image/jpeg",
+        customMetadata: {
+          "uploadTime" : uploadTime.toString(),
+          "name" : file.name,
+        }
+      ),);
 
-
-
-    return false;
+    } catch (e) {
+      print(e);
+    }
   }
 }
